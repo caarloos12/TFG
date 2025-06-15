@@ -11,51 +11,100 @@
 "cuya ratio estándar es logarítmica, luego pertence a la clase Log-APX."
 "El algoritmo viene descrito en el libro de Vazirani"
 
-def min_set_cover(universe, subsets,costs):
-    coste=0
-    # Primero comprobaremos que todos los elementos del universo están cubiertos por al menos un subconjunto
-    elements = set(e for s in subsets for e in s)
-    if elements != universe:
-        return None
+def greedy_set_cover(universe, subsets, costs):
+    """
+    Implementación del Algoritmo 2 (página 35) para resolver el problema Set Cover
+    de forma voraz.
+
+    Args:
+        universe (set): El conjunto de todos los elementos que deben ser cubiertos.
+        subsets (dict): Un diccionario donde las claves son los nombres de los 
+                        subconjuntos y los valores son los conjuntos de elementos.
+                        Ej: {'A': {1, 2, 3}, 'B': {3, 4, 5}}
+        costs (dict): Un diccionario que mapea los nombres de los subconjuntos
+                      a sus costes. Ej: {'A': 5, 'B': 4}
+
+    Returns:
+        tuple: Una tupla conteniendo la lista de conjuntos de la solución y
+               el coste total de dicha solución. O un error si no se puede cubrir.
+    """
+    # C: Conjunto de elementos ya cubiertos. Inicia vacío como en el algoritmo.
+    elements_covered = set()
     
-    # Ahora, llevaremos la cuenta de los elementos que ya están cubiertos mediante un conjunto
-    covered = set()
+    # Lista para guardar los conjuntos seleccionados en la solución.
+    solution_sets = []
+    
+    # El algoritmo se ejecuta mientras el conjunto de elementos cubiertos (C)
+    # no sea igual al universo (U).
+    while elements_covered != universe:
+        best_set = None
+        min_ratio = float('inf')
 
-    # Aquí guardaremos los subconjuntos que vamos a seleccionar
-    cover = []
+        # Paso 3: Encontrar el conjunto más rentable en la iteración actual.
+        # La rentabilidad es la ratio coste / |elementos nuevos cubiertos|.
+        for set_name, set_elements in subsets.items():
+            # Calcula los elementos que este conjunto cubriría y que aún no están cubiertos.
+            new_elements_covered = set_elements - elements_covered
+            
+            # Si el conjunto no aporta elementos nuevos, no nos interesa.
+            if not new_elements_covered:
+                continue
 
-    # La condición del algoritmo es que mientras no hayamos cubierto todos los elementos del universo, 
-    # buscamos el siguiente subconjunto que mejor ratio de elementos no cubiertos/coste tenga
-    while covered != elements:
-        subset = min( (s for s in subsets if len(s - covered) > 0),  # Filtramos subconjuntos vacíos
-                        key=lambda s: costs[subsets.index(s)] / len(s - covered))
-        cover.append(subset)
-        coste+=costs[subsets.index(subset)]
-        covered |= subset
- 
-    return cover, coste
+            # Calcula la ratio coste-beneficio.
+            ratio = costs[set_name] / len(new_elements_covered)
 
-# Ahora, veamos un ejemplo de uso del algoritmo:
+            # Si esta ratio es la mejor que hemos encontrado hasta ahora,
+            # guardamos este conjunto como el mejor candidato.
+            if ratio < min_ratio:
+                min_ratio = ratio
+                best_set = set_name
+        
+        # Si no se encontró ningún conjunto que cubra nuevos elementos,
+        # significa que el universo no puede ser cubierto con los subconjuntos dados.
+        if best_set is None:
+            raise ValueError("No se puede cubrir el universo con los subconjuntos proporcionados.")
 
-universo = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-subconjuntos = [{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10}, {2, 3, 5, 7}, {4, 6, 8, 10}]
-costos = [5, 10, 3, 1, 8, 7]
+        # Paso 5 y 6: Escoger el mejor conjunto y actualizar los elementos cubiertos.
+        solution_sets.append(best_set)
+        elements_covered.update(subsets[best_set])
+        
+    # Calcular el coste total de la solución.
+    total_cost = sum(costs[s] for s in solution_sets)
+    
+    return solution_sets, total_cost
 
-cobertura, coste_total = min_set_cover(universo, subconjuntos, costos)
-print("Subconjuntos seleccionados:", cobertura)
-print("Coste total:", coste_total)
 
-# Ahora, un caso más grande:
-import random
+# --- Ejemplo de uso ---
+if __name__ == "__main__":
+    # Definimos la instancia del problema según la Definición 4.3.1.
+    # Universo de elementos a cubrir.
+    U = set(range(1, 11)) 
 
-# Universo de 500 elementos
-universe = set(range(1, 51))
+    # Colección de subconjuntos disponibles.
+    S = {
+        'A': {1, 2, 3, 4},
+        'B': {5, 6, 7},
+        'C': {1, 3, 5, 7, 9},
+        'D': {2, 4, 6, 8, 10},
+        'E': {8, 9, 10}
+    }
 
-# 200 subconjuntos, cada uno con alta superposición (cubren 100-200 elementos)
-subsets = [set(random.sample(list(universe), random.randint(1, 15))) for _ in range(200)]
+    # Función de coste para cada subconjunto.
+    C = {
+        'A': 5,
+        'B': 4,
+        'C': 8,
+        'D': 8,
+        'E': 3
+    }
 
-# Costes variables
-costs = [random.randint(5, 30) for _ in range(200)]
-
-print(min_set_cover(universe, subsets, costs))
-
+    print(f"Universo a cubrir: {U}\n")
+    try:
+        # Ejecutamos el algoritmo
+        chosen_sets, cost = greedy_set_cover(U, S, C)
+        
+        # Mostramos el resultado
+        print(f"Los conjuntos elegidos para la solución son: {chosen_sets}")
+        print(f"El coste total de la cobertura es: {cost}")
+    except ValueError as e:
+        print(e)
