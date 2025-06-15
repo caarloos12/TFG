@@ -1,52 +1,119 @@
-import numpy as np
+"""
+    Implementación del Algoritmo 6 (página 41), un Esquema de Aproximación
+    Totalmente Polinomial en Tiempo (FPTAS) para el problema de la mochila 0/1.
 
-def knapsack_fptas(items, capacity, epsilon):
+    Args:
+        items (list): Lista de tuplas (beneficio, peso).
+        capacity (int): Capacidad máxima de la mochila.
+        epsilon (float): Factor de error (ej: 0.2 para 20% de error).
+
+    Returns:
+        tuple: (beneficio_total, peso_total, lista_de_objetos_seleccionados).
     """
-    FPTAS para el problema de la mochila 0/1
-    :param items: Lista de tuplas (valor, peso)
-    :param capacity: Capacidad máxima de la mochila
-    :param epsilon: Parámetro de aproximación
-    :return: Valor máximo aproximado y los elementos seleccionados
-    """
-    n = len(items)
-    max_value = max(value for value, _ in items)
-    
-    # Escalado de valores
-    scaling_factor = (epsilon * max_value) / n
-    scaled_items = [(int(value / scaling_factor), weight) for value, weight in items]
-    
-    # Programación dinámica con los valores escalados
-    V = sum(value for value, _ in scaled_items)
-    dp = np.full((n + 1, V + 1), float('inf'))
-    dp[0][0] = 0
-    
-    for i in range(1, n + 1):
-        value, weight = scaled_items[i - 1]
-        for v in range(V + 1):
-            dp[i][v] = dp[i - 1][v]
-            if v >= value:
-                dp[i][v] = min(dp[i][v], dp[i - 1][v - value] + weight)
-    
-    # Encontrar el mayor valor posible dentro de la capacidad
-    best_value = max(v for v in range(V + 1) if dp[n][v] <= capacity)
-    
-    # Reconstrucción de la solución
-    selected_items = []
-    w = capacity
-    for i in range(n, 0, -1):
-        if best_value > 0 and dp[i][best_value] != dp[i - 1][best_value]:
-            selected_items.append(i - 1)
-            best_value -= scaled_items[i - 1][0]
-    
-    # Devolver el valor original y los elementos seleccionados
-    total_value = sum(items[i][0] for i in selected_items)
-    return total_value, selected_items
+    if not items or capacity <= 0 or epsilon <= 0:
+        return 0, 0, []
 
-# Ejemplo de uso
-items = [(60, 10), (100, 20), (120, 30)]  # (valor, peso)
-capacity = 50
-epsilon = 0.1
+    num_items = len(items)
+    
+    # --- Paso 1: Definir K ---
+    max_profit = 0
+    for profit, _ in items:
+        if profit > max_profit:
+            max_profit = profit
+            
+    if max_profit == 0:
+        return 0, 0, []
 
-max_value, selected_items = knapsack_fptas(items, capacity, epsilon)
-print("Valor aproximado máximo:", max_value)
-print("Índices de los elementos seleccionados:", selected_items)
+    K = (epsilon * max_profit) / num_items
+
+    # --- Pasos 2 y 3: Escalar los beneficios ---
+    scaled_items = []
+    for profit, weight in items:
+        # Ignorar objetos con peso mayor a la capacidad
+        if weight <= capacity:
+            scaled_items.append({
+                'scaled_profit': int(profit / K) if K > 0 else profit,
+                'original_profit': profit,
+                'weight': weight
+            })
+    
+    num_scaled_items = len(scaled_items)
+    max_possible_scaled_profit = sum(item['scaled_profit'] for item in scaled_items)
+
+    # --- Paso 4: Programación Dinámica con tabla 2D ---
+    # dp[i][p] = peso mínimo para un beneficio 'p' usando los primeros 'i' objetos.
+    dp = [[float('inf')] * (max_possible_scaled_profit + 1) for _ in range(num_scaled_items + 1)]
+
+    # Caso base: con 0 objetos, solo se puede lograr un beneficio de 0 con un peso de 0.
+    for i in range(num_scaled_items + 1):
+        dp[i][0] = 0
+
+    # Llenamos la tabla de DP
+    for i in range(1, num_scaled_items + 1):
+        item = scaled_items[i-1]
+        p_scaled = item['scaled_profit']
+        w = item['weight']
+        
+        for p in range(1, max_possible_scaled_profit + 1):
+            # Opción 1: No incluir el objeto i. El peso es el mismo que con i-1 objetos.
+            weight_without_item = dp[i-1][p]
+            
+            # Opción 2: Incluir el objeto i.
+            weight_with_item = float('inf')
+            if p_scaled <= p:
+                if dp[i-1][p - p_scaled] != float('inf'):
+                    weight_with_item = w + dp[i-1][p - p_scaled]
+            
+            # Nos quedamos con la opción que nos dé el menor peso.
+            dp[i][p] = min(weight_without_item, weight_with_item)
+
+    # --- Encontrar la mejor solución ---
+    best_scaled_profit = 0
+    for p in range(max_possible_scaled_profit, -1, -1):
+        # Si el peso para lograr el beneficio 'p' no excede la capacidad...
+        if dp[num_scaled_items][p] <= capacity:
+            best_scaled_profit = p
+            break
+            
+    # --- Paso 5: Backtracking para encontrar los objetos ---
+    solution_items = []
+    p = best_scaled_profit
+    
+    for i in range(num_scaled_items, 0, -1):
+        # Si el peso es diferente al de la fila anterior, el objeto i fue incluido.
+        if dp[i][p] != dp[i-1][p]:
+            item = scaled_items[i-1]
+            solution_items.append((item['original_profit'], item['weight']))
+            p -= item['scaled_profit']
+            
+    total_profit = sum(item[0] for item in solution_items)
+    total_weight = sum(item[1] for item in solution_items)
+
+    return total_profit, total_weight, solution_items
+
+
+# --- Ejemplo de uso ---
+if __name__ == "__main__":
+    # Mismos objetos y capacidad del ejemplo anterior.
+    objetos = [
+        (10, 5), (40, 2), (50, 10), (70, 7), (25, 4),
+        (100, 1), (30, 8), (15, 3)
+    ]
+    capacidad_mochila = 20
+    
+    print(f"Objetos disponibles (beneficio, peso): {objetos}")
+    print(f"Capacidad de la mochila: {capacidad_mochila}\n")
+    
+    epsilon = 0.5
+    profit, weight, solution = fptas_knapsack_corrected(objetos, capacidad_mochila, epsilon)
+    print(f"--- Resultado con Epsilon = {epsilon} ---")
+    print(f"Beneficio total: {profit}")
+    print(f"Peso total: {weight}")
+    print(f"Objetos en la mochila: {solution}\n")
+    
+    epsilon = 0.2
+    profit, weight, solution = fptas_knapsack_corrected(objetos, capacidad_mochila, epsilon)
+    print(f"--- Resultado con Epsilon = {epsilon} ---")
+    print(f"Beneficio total: {profit}")
+    print(f"Peso total: {weight}")
+    print(f"Objetos en la mochila: {solution}")
