@@ -1,3 +1,4 @@
+def fptas_knapsack(items, capacity, epsilon):
 """
     Implementación del Algoritmo 6 (página 41), un Esquema de Aproximación
     Totalmente Polinomial en Tiempo (FPTAS) para el problema de la mochila 0/1.
@@ -5,7 +6,7 @@
     Args:
         items (list): Lista de tuplas (beneficio, peso).
         capacity (int): Capacidad máxima de la mochila.
-        epsilon (float): Factor de error (ej: 0.2 para 20% de error).
+        epsilon (float): Factor de error.
 
     Returns:
         tuple: (beneficio_total, peso_total, lista_de_objetos_seleccionados).
@@ -90,30 +91,3 @@
     total_weight = sum(item[1] for item in solution_items)
 
     return total_profit, total_weight, solution_items
-
-
-# --- Ejemplo de uso ---
-if __name__ == "__main__":
-    # Mismos objetos y capacidad del ejemplo anterior.
-    objetos = [
-        (10, 5), (40, 2), (50, 10), (70, 7), (25, 4),
-        (100, 1), (30, 8), (15, 3)
-    ]
-    capacidad_mochila = 20
-    
-    print(f"Objetos disponibles (beneficio, peso): {objetos}")
-    print(f"Capacidad de la mochila: {capacidad_mochila}\n")
-    
-    epsilon = 0.5
-    profit, weight, solution = fptas_knapsack_corrected(objetos, capacidad_mochila, epsilon)
-    print(f"--- Resultado con Epsilon = {epsilon} ---")
-    print(f"Beneficio total: {profit}")
-    print(f"Peso total: {weight}")
-    print(f"Objetos en la mochila: {solution}\n")
-    
-    epsilon = 0.2
-    profit, weight, solution = fptas_knapsack_corrected(objetos, capacidad_mochila, epsilon)
-    print(f"--- Resultado con Epsilon = {epsilon} ---")
-    print(f"Beneficio total: {profit}")
-    print(f"Peso total: {weight}")
-    print(f"Objetos en la mochila: {solution}")
