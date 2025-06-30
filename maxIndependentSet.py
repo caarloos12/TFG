@@ -109,24 +109,3 @@ def solve_max_independent_set(graph):
     final_solution = V1.union(S_hat)
     
     return final_solution
-
-
-# --- Ejemplo de uso ---
-if __name__ == "__main__":
-    # Creamos un grafo de ejemplo
-    # Grafo "casa": 5 nodos, con un triángulo en la base y un "techo"
-    # Conjunto independiente máximo: {0, 3, 4} o {1, 3, 4} (tamaño 3)
-    sample_graph = {
-        0: [1, 2],
-        1: [0, 2],
-        2: [0, 1, 3, 4],
-        3: [2, 4],
-        4: [2, 3]
-    }
-
-    # Resolvemos el problema
-    independent_set = solve_max_independent_set(sample_graph)
-
-    print(f"Grafo de entrada (lista de adyacencia): {sample_graph}")
-    print(f"Conjunto independiente encontrado: {independent_set}")
-    print(f"Tamaño del conjunto: {len(independent_set)}")
