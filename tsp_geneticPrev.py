@@ -1,3 +1,12 @@
+"""
+==============================================================================
+|| TFG - Trabajo de Fin de Grado en Matemáticas de Carlos San Román Cazorla ||
+==============================================================================
+"""
+
+"Este código ha sido realizado por Carlos San Román Cazorla"
+"para el desarrollo de su Trabajo de Fin de Grado en Matemáticas."
+
 import networkx as nx
 import itertools 
 import re 
@@ -6,7 +15,6 @@ import random
 import matplotlib.pyplot as plt
 import os # For file operations
 
-# --- Helper functions for EUC_2D problems (from user's GA code) ---
 def load_tsplib_problem_coords(filepath):
     """Carga las coordenadas de los nodos desde un archivo en formato TSPLIB (NODE_COORD_SECTION)."""
     print(f"GA Part (Coords Loader): Loading coordinates from {filepath}")
@@ -15,7 +23,7 @@ def load_tsplib_problem_coords(filepath):
 
     coords = []
     in_coord_section = False
-    dimension = 0 # Try to get dimension from header as well
+    dimension = 0 
     for line in lines:
         line = line.strip()
         if line.startswith("DIMENSION"):
@@ -23,7 +31,7 @@ def load_tsplib_problem_coords(filepath):
                 dimension = int(line.split(':')[1].strip())
                 print(f"GA Part (Coords Loader): Dimension from header: {dimension}")
             except:
-                pass # Ignore if not found or malformed
+                pass 
         elif line.startswith("NODE_COORD_SECTION"):
             in_coord_section = True
             print("GA Part (Coords Loader): Entering NODE_COORD_SECTION.")
@@ -34,8 +42,6 @@ def load_tsplib_problem_coords(filepath):
         if in_coord_section:
             parts = line.split()
             try:
-                # TSPLIB node indices are often 1-based, but we store coords 0-indexed.
-                # Node ID (parts[0]) is ignored here, assuming sequential nodes.
                 coords.append([float(parts[1]), float(parts[2])])
             except ValueError:
                 print(f"GA Part (Coords Loader): Warning - Could not parse coordinate line: {line}")
@@ -59,7 +65,6 @@ def calculate_distance_matrix_from_coords(cities_coords):
     return dist_matrix
 
 # --- Part 1: Christofides 3/2-Approximation Algorithm ---
-# (parse_tsplib_file_for_christofides is for EXPLICIT weights, not used for EUC_2D in the new main)
 def parse_tsplib_file_for_christofides(file_path):
     """
     Parses a TSPLIB file (like hk48.txt with EXPLICIT LOWER_DIAG_ROW weights) 
@@ -518,222 +523,13 @@ def plot_final_tour(cities_coords, best_tour, best_distance, problem_name=""):
 
 # --- Main Execution Logic ---
 if __name__ == "__main__":
-    PROBLEM_FILE_NAME = "C:/Users/carlo/OneDrive/Desktop/d2103.txt"
+    PROBLEM_FILE_NAME = #PONER NOMBRE DE ARCHIVO
     
     POPULATION_SIZE = 150
     GENERATIONS = 1000 
     MUTATION_RATE = 0.02
     CROSSOVER_RATE = 0.9
     ELITISM_SIZE = 10 
-
-    rat195_content = """
-NAME : rat195
-COMMENT : Rattled grid (Pulleyblank)
-TYPE : TSP
-DIMENSION : 195
-EDGE_WEIGHT_TYPE : EUC_2D
-NODE_COORD_SECTION
-1 3 12
-2 17 12
-3 23 9
-4 34 11
-5 47 11
-6 54 12
-7 66 16
-8 75 7
-9 86 6
-10 94 8
-11 107 9
-12 115 14
-13 123 15
-14 3 32
-15 15 32
-16 26 34
-17 33 34
-18 42 34
-19 53 25
-20 64 32
-21 74 32
-22 85 34
-23 95 28
-24 104 25
-25 113 31
-26 125 34
-27 3 48
-28 15 46
-29 26 50
-30 36 54
-31 48 50
-32 54 46
-33 64 54
-34 75 44
-35 88 49
-36 98 50
-37 103 54
-38 115 47
-39 127 49
-40 6 75
-41 15 75
-42 27 73
-43 36 73
-44 47 68
-45 54 72
-46 66 68
-47 74 67
-48 85 65
-49 94 74
-50 107 65
-51 117 65
-52 125 68
-53 6 84
-54 13 95
-55 25 94
-56 37 84
-57 47 87
-58 53 95
-59 63 86
-60 77 93
-61 83 89
-62 94 95
-63 103 92
-64 115 95
-65 123 93
-66 7 114
-67 15 111
-68 24 112
-69 36 108
-70 43 112
-71 56 105
-72 64 112
-73 73 112
-74 86 107
-75 98 108
-76 104 113
-77 117 115
-78 126 109
-79 6 127
-80 17 125
-81 27 134
-82 35 126
-83 44 131
-84 54 132
-85 63 124
-86 77 127
-87 82 134
-88 96 128
-89 103 126
-90 116 130
-91 126 134
-92 7 152
-93 16 147
-94 24 153
-95 35 151
-96 45 154
-97 55 146
-98 63 155
-99 75 151
-100 87 154
-101 93 156
-102 104 151
-103 117 153
-104 127 148
-105 3 164
-106 16 172
-107 25 165
-108 35 175
-109 44 169
-110 53 174
-111 64 168
-112 76 171
-113 87 173
-114 95 174
-115 106 168
-116 114 169
-117 125 169
-118 3 190
-119 16 188
-120 25 195
-121 37 186
-122 44 189
-123 54 194
-124 66 192
-125 77 192
-126 85 188
-127 93 185
-128 106 192
-129 113 193
-130 125 195
-131 5 207
-132 15 213
-133 24 209
-134 33 214
-135 43 206
-136 53 211
-137 64 213
-138 74 212
-139 84 212
-140 94 209
-141 104 215
-142 115 206
-143 127 209
-144 6 229
-145 13 227
-146 26 235
-147 34 225
-148 43 227
-149 55 225
-150 67 229
-151 75 234
-152 87 230
-153 95 235
-154 105 228
-155 117 225
-156 127 230
-157 6 249
-158 15 246
-159 26 255
-160 33 246
-161 47 248
-162 58 252
-163 65 248
-164 73 247
-165 87 249
-166 94 245
-167 104 256
-168 113 246
-169 125 253
-170 5 266
-171 16 274
-172 24 267
-173 37 266
-174 45 267
-175 54 266
-176 67 267
-177 74 265
-178 87 264
-179 95 271
-180 106 264
-181 116 271
-182 127 273
-183 7 287
-184 17 294
-185 23 287
-186 33 284
-187 43 288
-188 53 295
-189 67 288
-190 73 286
-191 87 293
-192 94 284
-193 104 291
-194 114 294
-195 127 290
-EOF
-"""
-    if PROBLEM_FILE_NAME == "rat195.tsp":
-        with open(PROBLEM_FILE_NAME, "w") as f:
-            f.write(rat195_content)
-        print(f"Content for {PROBLEM_FILE_NAME} written to disk.")
 
     cities_coords_for_ga = None
     dist_matrix_for_algs = None
