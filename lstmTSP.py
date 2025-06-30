@@ -1,3 +1,12 @@
+"""
+==============================================================================
+|| TFG - Trabajo de Fin de Grado en Matemáticas de Carlos San Román Cazorla ||
+==============================================================================
+"""
+
+"Este código ha sido realizado por Carlos San Román Cazorla"
+"para el desarrollo de su Trabajo de Fin de Grado en Matemáticas."
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
