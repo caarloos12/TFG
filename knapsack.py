@@ -1,3 +1,12 @@
+"""
+==============================================================================
+|| TFG - Trabajo de Fin de Grado en Matemáticas de Carlos San Román Cazorla ||
+==============================================================================
+"""
+
+"Este código ha sido realizado por Carlos San Román Cazorla"
+"para el desarrollo de su Trabajo de Fin de Grado en Matemáticas."
+
 def fptas_knapsack(items, capacity, epsilon):
 """
     Implementación del Algoritmo 6 (página 41), un Esquema de Aproximación
