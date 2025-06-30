@@ -72,39 +72,3 @@ def greedy_set_cover(universe, subsets, costs):
     total_cost = sum(costs[s] for s in solution_sets)
     
     return solution_sets, total_cost
-
-
-# --- Ejemplo de uso ---
-if __name__ == "__main__":
-    # Definimos la instancia del problema según la Definición 4.3.1.
-    # Universo de elementos a cubrir.
-    U = set(range(1, 11)) 
-
-    # Colección de subconjuntos disponibles.
-    S = {
-        'A': {1, 2, 3, 4},
-        'B': {5, 6, 7},
-        'C': {1, 3, 5, 7, 9},
-        'D': {2, 4, 6, 8, 10},
-        'E': {8, 9, 10}
-    }
-
-    # Función de coste para cada subconjunto.
-    C = {
-        'A': 5,
-        'B': 4,
-        'C': 8,
-        'D': 8,
-        'E': 3
-    }
-
-    print(f"Universo a cubrir: {U}\n")
-    try:
-        # Ejecutamos el algoritmo
-        chosen_sets, cost = greedy_set_cover(U, S, C)
-        
-        # Mostramos el resultado
-        print(f"Los conjuntos elegidos para la solución son: {chosen_sets}")
-        print(f"El coste total de la cobertura es: {cost}")
-    except ValueError as e:
-        print(e)
