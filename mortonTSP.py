@@ -81,7 +81,7 @@ def read_tsp_file(filepath):
 
 # --- Ejemplo de uso con el archivo d2103.txt ---
 if __name__ == "__main__":
-    filename = "C:/Users/carlo/OneDrive/Desktop/d1655.txt"
+    filename = #PONER NOMBRE DEL FICHERO
     
     try:
         print(f"Leyendo el archivo de problema '{filename}'...")
