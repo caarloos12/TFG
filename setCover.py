@@ -6,10 +6,6 @@
 
 "Este código ha sido realizado por Carlos San Román Cazorla"
 "para el desarrollo de su Trabajo de Fin de Grado en Matemáticas."
-"Mediante este código se pretende mostrar la implementación de  "
-"un algoritmo greedy para resolver el problema de MIN SET COVER, "
-"cuya ratio estándar es logarítmica, luego pertence a la clase Log-APX."
-"El algoritmo viene descrito en el libro de Vazirani"
 
 def greedy_set_cover(universe, subsets, costs):
     """
